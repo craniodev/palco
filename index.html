@@ -17,9 +17,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#15120f; --bg-elev:#1d1813; --surface:#241e17; --surface-2:#2c241b;
+  --bg:#100c08; --bg-elev:#1d1813; --surface:#241e17; --surface-2:#2c241b;
   --line:rgba(255,237,213,.10); --line-strong:rgba(255,237,213,.18);
-  --text:#f1e9dd; --muted:#a89c8b; --faint:#6f6557;
+  --text:#fdf6ec; --muted:#a89c8b; --faint:#6f6557;
   --chord:#ffb454; --chord-soft:#ffcd86;
   --section:#e9d6b6; --accent:#ff9f3c; --accent-ink:#1a1209;
   --glow:rgba(255,160,70,.16);
@@ -154,6 +154,8 @@ header{
 .measure .rep{color:var(--faint); font-size:1.15em; font-weight:600}
 .measure .beat{color:var(--muted)}
 .measure .btok{color:var(--text)}
+.bars .repmark{display:flex; align-items:center; padding:0 .4em; font-family:var(--mono); font-weight:700; color:var(--accent); font-size:calc(var(--fs)*.95)}
+.bars .barcount{display:flex; align-items:center; padding:0 .55em; font-family:var(--mono); font-weight:600; font-size:calc(var(--fs)*.62); color:var(--accent)}
 
 .line{display:flex; flex-wrap:wrap; align-items:flex-end; margin-bottom:.5em}
 .line.instr{margin-bottom:.8em}
@@ -163,7 +165,7 @@ header{
   font-family:var(--mono); font-weight:600; font-size:calc(var(--fs) * .68);
   color:var(--chord); line-height:1.15; height:1.32em; padding-right:.55em; white-space:pre;
 }
-.seg .ly{font-size:var(--fs); line-height:var(--lh); white-space:pre; font-weight:500}
+.seg .ly{font-size:var(--fs); line-height:var(--lh); white-space:pre; font-weight:600}
 .line.instr .seg .ch{height:auto; font-size:calc(var(--fs)*.82); padding-right:1.1em}
 .line.instr .seg .ly{display:none}
 .line.lyric-only .seg .ch{display:none}
@@ -575,12 +577,23 @@ function extractSection(body, name){
 
 function parseBody(body){ return expand(body, {visited:new Set(), depth:0, tr:0}); }
 
-// "|Dm |% |C   A↓↓|" -> array of measures, each an array of tokens
+// "|: Dm | % | C  A↓↓ :| 2x" -> {measures, repStart, repEnd, count}
 function parseBars(line){
-  let cells = line.split('|');
+  let s = line.trim();
+  let count=null, repStart=false, repEnd=false;
+  // trailing repeat count after the final bar: 2x, x2, (4x)
+  const lastBar = s.lastIndexOf('|');
+  if(lastBar >= 0){
+    const tail = s.slice(lastBar+1).trim();
+    const cm = tail.match(/^\(?\s*(?:(\d+)\s*[xX]|[xX]\s*(\d+))\s*\)?$/);
+    if(cm){ count = (cm[1]||cm[2])+'x'; s = s.slice(0, lastBar+1).trim(); }
+  }
+  if(/:\s*\|$/.test(s)){ repEnd=true; s = s.replace(/:\s*\|$/, '|'); }   // :|
+  if(/^\|\s*:/.test(s)){ repStart=true; s = s.replace(/^\|\s*:/, '|'); } // |:
+  let cells = s.split('|');
   if(cells.length && cells[0].trim()==='') cells.shift();
   if(cells.length && cells[cells.length-1].trim()==='') cells.pop();
-  return cells.map(c=>{
+  const measures = cells.map(c=>{
     const toks = (c.trim().match(/\S+/g) || []);
     return toks.map(tk=>({
       tok: tk,
@@ -589,6 +602,7 @@ function parseBars(line){
       beat: /^[\/.]+$/.test(tk)
     }));
   });
+  return { measures, repStart, repEnd, count };
 }
 
 function expand(body, ctx){
@@ -606,7 +620,7 @@ function expand(body, ctx){
     if(t===''){ blocks.push({type:'blank', tr:TR}); continue; }
 
     // measure / bar notation:  |Dm |% |C |% |
-    if(/^\|/.test(t)){ blocks.push({type:'bars', measures: parseBars(t), tr:TR}); continue; }
+    if(/^\|/.test(t)){ blocks.push({type:'bars', bars: parseBars(t), tr:TR}); continue; }
 
     // annotation / cue line:  * No futebol
     if(/^\*\s*\S/.test(t)){ blocks.push({type:'annot', text:t.replace(/^\*+\s*/,''), tr:TR}); continue; }
@@ -625,7 +639,7 @@ function expand(body, ctx){
       blocks.push({type:'section', text:lead[1].trim(), tr:TR});
       const rest = lead[2].trim();
       if(rest && isChordLine(rest)) blocks.push({type:'instr', segs: chordTokens(rest).map(x=>({chord:x.tok,text:''})), tr:TR});
-      else if(/^\|/.test(rest)) blocks.push({type:'bars', measures: parseBars(rest), tr:TR});
+      else if(/^\|/.test(rest)) blocks.push({type:'bars', bars: parseBars(rest), tr:TR});
       else if(rest) blocks.push({type:'annot', text:rest.replace(/^\*+\s*/,''), tr:TR});
       continue;
     }
@@ -695,9 +709,11 @@ function renderSegs(segs, instr, tr){
   return line;
 }
 
-function renderBars(measures, tr){
+function renderBars(b, tr){
   tr = state.transpose + (tr||0);
+  const measures = b.measures || [];
   const wrap = el('div','bars');
+  if(b.repStart) wrap.appendChild(el('span','repmark','‖:'));
   for(const m of measures){
     const cell = el('div','measure');
     if(m.length===0){ cell.appendChild(el('span','beat','\u00A0')); }
@@ -709,6 +725,8 @@ function renderBars(measures, tr){
     }
     wrap.appendChild(cell);
   }
+  if(b.repEnd) wrap.appendChild(el('span','repmark',':‖'));
+  if(b.count) wrap.appendChild(el('span','barcount', b.count));
   return wrap;
 }
 
@@ -727,7 +745,7 @@ function appendBlocks(blocks, wrap, skipTitle){
     if(b.type==='section'){ wrap.appendChild(el('div','section',b.text)); continue; }
     if(b.type==='annot'){ wrap.appendChild(el('div','annot',b.text)); continue; }
     if(b.type==='medley'){ wrap.appendChild(medleyDivider(b)); continue; }
-    if(b.type==='bars'){ wrap.appendChild(renderBars(b.measures, b.tr)); continue; }
+    if(b.type==='bars'){ wrap.appendChild(renderBars(b.bars, b.tr)); continue; }
     if(b.type==='plain'){ wrap.appendChild(el('p','plain',b.text)); continue; }
     if(b.type==='instr'){ wrap.appendChild(renderSegs(b.segs, true, b.tr)); continue; }
     if(b.type==='line'){ wrap.appendChild(renderSegs(b.segs, false, b.tr)); continue; }
@@ -924,8 +942,26 @@ const spd=$('#speed');
 spd.value=state.speed; $('#spdVal').textContent=state.speed;
 spd.oninput=()=>{ state.speed=+spd.value; $('#spdVal').textContent=spd.value; LS.set('cifra.speed',state.speed); };
 
-$('#prevSong').onclick=()=>{ if(state.current>0){ stopScroll(); state.current--; render(); } };
-$('#nextSong').onclick=()=>{ if(state.current<state.songs.length-1){ stopScroll(); state.current++; render(); } };
+function goPrev(){ if(state.current>0){ stopScroll(); state.current--; render(); buildSetlist(); } }
+function goNext(){ if(state.current<state.songs.length-1){ stopScroll(); state.current++; render(); buildSetlist(); } }
+$('#prevSong').onclick=goPrev;
+$('#nextSong').onclick=goNext;
+
+/* Swipe horizontal para trocar de música */
+let swX=0, swY=0, swT=0, swActive=false;
+scroller.addEventListener('touchstart', e=>{
+  if(e.touches.length!==1){ swActive=false; return; }
+  swX=e.touches[0].clientX; swY=e.touches[0].clientY; swT=Date.now(); swActive=true;
+}, {passive:true});
+scroller.addEventListener('touchend', e=>{
+  if(!swActive) return; swActive=false;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-swX, dy=t.clientY-swY, dt=Date.now()-swT;
+  // horizontal dominante, distância e velocidade mínimas, ignora rolagem vertical
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.8 && dt<600){
+    if(dx<0) goNext(); else goPrev();
+  }
+}, {passive:true});
 
 /* Stage mode */
 $('#stageBtn').onclick=()=>{ document.body.classList.add('stage'); };
