@@ -393,6 +393,8 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
+// Link padrão de importação: app novo já sincroniza deste repertório.
+const DEFAULT_URL = 'https://github.com/craniodev/palco/blob/main/repertorio.md';
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
@@ -401,7 +403,7 @@ const state = {
   fontSize: LS.get('cifra.fontSize', 21),
   speed: LS.get('cifra.speed', 34),
   theme: LS.get('cifra.theme', 'dark'),
-  url: LS.get('cifra.url', null),
+  url: LS.get('cifra.url', DEFAULT_URL),
   synced: LS.get('cifra.synced', 0),
   scrolling: false
 };
