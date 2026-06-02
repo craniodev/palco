@@ -45,40 +45,16 @@ body{
   overscroll-behavior:none; -webkit-text-size-adjust:100%;
   display:flex; flex-direction:column; height:100dvh; overflow:hidden;
 }
-body::before{ /* warm stage glow + subtle grain */
-  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(120% 60% at 50% -8%, var(--glow), transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
-}
+/* flat minimalist: no glow / grain overlay */
 
-/* ---------- Header ---------- */
-header{
-  position:relative; z-index:5; flex:0 0 auto;
-  padding:calc(var(--safe-t) + 8px) 12px 8px;
-  background:linear-gradient(var(--bg-elev),rgba(0,0,0,0));
-  display:flex; align-items:center; gap:10px;
-}
 .icon-btn{
   flex:0 0 auto; display:grid; place-items:center;
-  width:42px; height:42px; border-radius:13px; border:1px solid var(--line);
+  width:42px; height:42px; border-radius:9px; border:1px solid var(--line);
   background:var(--surface); color:var(--text); cursor:pointer;
   transition:transform .12s ease, background .15s, border-color .15s;
 }
 .icon-btn:active{transform:scale(.92)}
 .icon-btn svg{width:21px;height:21px}
-.title-tap{
-  flex:1 1 auto; min-width:0; text-align:left; background:none; border:0;
-  color:inherit; cursor:pointer; padding:2px 4px; display:flex; flex-direction:column;
-}
-.title-tap .eyebrow{
-  font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
-  color:var(--accent); display:flex; align-items:center; gap:6px;
-}
-.title-tap .name{
-  font-family:var(--serif); font-weight:500; font-size:19px; line-height:1.1;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;
-}
 
 /* ---------- Settings panel ---------- */
 #panel{
@@ -92,14 +68,14 @@ header{
 .lbl{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); width:78px; flex:0 0 auto}
 .btn{
   border:1px solid var(--line); background:var(--surface); color:var(--text);
-  font-family:var(--sans); font-weight:600; font-size:13.5px; border-radius:11px;
+  font-family:var(--sans); font-weight:600; font-size:13.5px; border-radius:8px;
   padding:9px 14px; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
   transition:transform .1s, background .15s, border-color .15s;
 }
 .btn:active{transform:scale(.96)}
 .btn.primary{background:var(--accent); color:var(--accent-ink); border-color:transparent}
 .btn svg{width:16px;height:16px}
-.stepper{display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:11px; overflow:hidden; background:var(--surface)}
+.stepper{display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface)}
 .stepper button{width:42px;height:38px;border:0;background:none;color:var(--text);font-size:20px;cursor:pointer;font-family:var(--sans)}
 .stepper button:active{background:var(--surface-2)}
 .stepper .val{min-width:54px;text-align:center;font-family:var(--mono);font-size:14px;color:var(--chord);font-weight:600}
@@ -108,7 +84,7 @@ header{
 #scroller{
   position:relative; z-index:2; flex:1 1 auto; overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling:touch; scroll-behavior:auto;
-  padding:8px 18px calc(150px + var(--safe-b));
+  padding:calc(var(--safe-t) + 8px) 18px calc(150px + var(--safe-b));
 }
 #scroller::-webkit-scrollbar{width:0}
 #chart{max-width:760px; margin:0 auto}
@@ -125,15 +101,15 @@ header{
 .section:first-child{margin-top:6px}
 .medley{
   display:flex; align-items:baseline; gap:11px; flex-wrap:wrap;
-  margin:30px 0 14px; padding-top:16px; border-top:1px dashed var(--line-strong);
+  margin:30px 0 14px; padding-top:16px; border-top:1px solid var(--line);
   font-family:var(--serif); font-weight:500; font-size:calc(var(--fs) * 1.12);
   color:var(--accent); line-height:1.1; letter-spacing:-.01em;
 }
 .medley .arrow{font-family:var(--mono);font-size:.62em;opacity:.85;transform:translateY(-1px)}
 .medley .mt{flex:1 1 auto}
-.medley .off{font-family:var(--mono);font-size:.5em;letter-spacing:.12em;color:var(--muted);border:1px solid var(--line);padding:2px 7px;border-radius:20px}
+.medley .off{font-family:var(--mono);font-size:.5em;letter-spacing:.12em;color:var(--muted);border:1px solid var(--line);padding:2px 7px;border-radius:4px}
 .medley.missing{color:#e57; border-top-color:rgba(229,85,119,.4)}
-.set-item .badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--line);border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
+.set-item .badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--line);border-radius:4px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
 
 /* annotation / cue */
 .annot{font-family:var(--serif); font-style:italic; font-size:calc(var(--fs)*.82); color:var(--muted); margin:.1em 0 .55em; line-height:1.35}
@@ -141,8 +117,8 @@ header{
 
 /* measure / bar grid */
 .bars{display:flex; flex-wrap:wrap; margin:.45em 0 1.1em;
-  border:1px solid var(--line); border-left:0; border-radius:9px; overflow:hidden;
-  background:linear-gradient(var(--surface), transparent);}
+  border:1px solid var(--line); border-left:0; border-radius:4px; overflow:hidden;
+  background:transparent;}
 .measure{
   flex:1 1 70px; min-width:64px;
   display:flex; align-items:center; justify-content:center; gap:.55em; flex-wrap:wrap;
@@ -178,20 +154,20 @@ header{
 /* ---------- Transport (footer) ---------- */
 #transport{
   position:fixed; left:0; right:0; bottom:0; z-index:6;
-  padding:10px 14px calc(10px + var(--safe-b));
-  background:linear-gradient(transparent, var(--bg) 34%);
+  padding:12px 8px calc(12px + var(--safe-b));
+  background:var(--bg); border-top:1px solid var(--line);
   display:flex; flex-direction:column; gap:9px; transition:transform .3s ease, opacity .3s;
 }
-.tp-main{display:flex; align-items:center; gap:12px; justify-content:center}
+.tp-main{display:flex; align-items:center; gap:6px; justify-content:center}
 .play-btn{
-  width:62px;height:62px;border-radius:50%;border:0;cursor:pointer;
+  width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;
   background:var(--accent); color:var(--accent-ink); display:grid; place-items:center;
-  box-shadow:0 8px 24px -8px var(--accent); transition:transform .12s;
+  transition:transform .12s;
 }
 .play-btn:active{transform:scale(.92)}
 .play-btn svg{width:34px;height:34px}
 .round{
-  width:48px;height:48px;border-radius:50%;border:1px solid var(--line);
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--line);flex:0 0 auto;
   background:var(--surface); color:var(--text); display:grid; place-items:center; cursor:pointer;
   transition:transform .12s,background .15s;
 }
@@ -209,18 +185,18 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .spd-val{font-family:var(--mono);font-size:12px;color:var(--chord);width:34px;text-align:right;flex:0 0 auto}
 
 /* stage mode */
-body.stage header,body.stage #panel{display:none}
+body.stage #panel{display:none}
 body.stage #scroller{padding-top:calc(var(--safe-t) + 14px)}
 body.stage #transport.hidden{transform:translateY(140%);opacity:0;pointer-events:none}
 .stage-exit{position:fixed;top:calc(var(--safe-t) + 8px);right:10px;z-index:7;display:none}
 body.stage .stage-exit{display:grid}
 
 /* ---------- Setlist / editor sheets ---------- */
-.sheet-bg{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-bg{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}
 .sheet-bg.open{opacity:1;pointer-events:auto}
 .sheet{
   position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--bg-elev);
-  border-radius:22px 22px 0 0; border-top:1px solid var(--line-strong);
+  border-radius:14px 14px 0 0; border-top:1px solid var(--line);
   transform:translateY(110%); transition:transform .3s cubic-bezier(.2,.8,.2,1);
   max-height:86dvh; display:flex; flex-direction:column;
   padding-bottom:var(--safe-b);
@@ -230,7 +206,7 @@ body.stage .stage-exit{display:grid}
 .sheet .grab{width:40px;height:4px;border-radius:4px;background:var(--line-strong);margin:9px auto 0}
 .setlist{overflow-y:auto;padding:8px 12px 18px}
 .set-item{
-  display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:14px;
+  display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:8px;
   border:1px solid var(--line);background:var(--surface);margin-bottom:8px;cursor:pointer;
 }
 .set-item.active{border-color:var(--accent);background:var(--surface-2)}
@@ -238,7 +214,7 @@ body.stage .stage-exit{display:grid}
 .set-item .t{font-family:var(--serif);font-size:17px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .editor{display:flex;flex-direction:column;flex:1;min-height:0;padding:0 14px 14px;gap:10px}
 textarea{
-  flex:1;min-height:200px;resize:none;width:100%;border-radius:14px;border:1px solid var(--line);
+  flex:1;min-height:200px;resize:none;width:100%;border-radius:8px;border:1px solid var(--line);
   background:var(--surface);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.5;padding:14px;
 }
 .ed-actions{display:flex;gap:10px}
@@ -246,33 +222,20 @@ textarea{
 .hint{font-size:12px;color:var(--muted);line-height:1.5}
 .hint code{font-family:var(--mono);color:var(--chord-soft);background:var(--surface);padding:1px 5px;border-radius:5px}
 input[type=text]{
-  width:100%;border-radius:12px;border:1px solid var(--line);background:var(--surface);
+  width:100%;border-radius:8px;border:1px solid var(--line);background:var(--surface);
   color:var(--text);font-family:var(--mono);font-size:13px;padding:13px 14px;
 }
 input[type=text]:focus{outline:none;border-color:var(--accent)}
 input[type=file]{display:none}
 .toast{
   position:fixed;left:50%;bottom:calc(160px + var(--safe-b));transform:translateX(-50%) translateY(12px);
-  z-index:30;background:var(--surface-2);border:1px solid var(--line-strong);color:var(--text);
-  padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s
+  z-index:30;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s
 }
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 </head>
 <body data-theme>
-<header>
-  <button class="icon-btn" id="btnSetlist" aria-label="Repertório">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-  </button>
-  <button class="title-tap" id="titleTap">
-    <span class="eyebrow"><span id="songIndex">1/1</span> · Cifra de Palco</span>
-    <span class="name" id="songName">—</span>
-  </button>
-  <button class="icon-btn" id="btnSettings" aria-label="Ajustes">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-  </button>
-</header>
-
 <section id="panel">
   <div class="panel-inner">
     <div class="row">
@@ -323,6 +286,9 @@ input[type=file]{display:none}
 
 <footer id="transport">
   <div class="tp-main">
+    <button class="round" id="btnSetlist" aria-label="Repertório">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    </button>
     <button class="round" id="prevSong" aria-label="Anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
     </button>
@@ -334,6 +300,9 @@ input[type=file]{display:none}
     </button>
     <button class="round" id="stageBtn" aria-label="Modo palco">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+    </button>
+    <button class="round" id="btnSettings" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
   <div class="tp-speed">
@@ -786,8 +755,6 @@ function render(){
   wrap.appendChild(el('div','end-pad'));
   chart.appendChild(wrap);
   scroller.scrollTop=0;
-  $('#songName').textContent = unit.title;
-  $('#songIndex').textContent = (state.current+1)+'/'+state.songs.length;
   $('#trVal').textContent = (state.transpose>0?'+':'')+state.transpose;
   $('#fsVal').textContent = state.fontSize;
 }
@@ -1015,7 +982,6 @@ function buildSetlist(){
   });
 }
 $('#btnSetlist').onclick=()=>{ buildSetlist(); openSheet('#setlistBg','#setlistSheet'); };
-$('#titleTap').onclick=()=>{ buildSetlist(); openSheet('#setlistBg','#setlistSheet'); };
 $('#setlistBg').onclick=()=>closeSheet('#setlistBg','#setlistSheet');
 
 /* ============================= Demo ============================= */
