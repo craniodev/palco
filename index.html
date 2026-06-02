@@ -794,6 +794,19 @@ function toRawUrl(u){
   if(m) return 'https://gist.githubusercontent.com/'+m[1]+'/'+m[2]+'/raw';
   return u;
 }
+// Derive the GitHub API endpoint (bypasses raw's 5-min CDN cache → newest commit).
+function ghApiFrom(rawUrl){
+  let m = rawUrl.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i);
+  if(m) return {type:'repo', api:'https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents/'+m[4].split('?')[0]+'?ref='+m[3]};
+  m = rawUrl.match(/gist\.github(?:usercontent)?\.com\/[^\/]+\/([0-9a-f]+)/i);
+  if(m) return {type:'gist', api:'https://api.github.com/gists/'+m[1]};
+  return null;
+}
+function b64utf8(b64){
+  const bin = atob((b64||'').replace(/\s/g,''));
+  const bytes = Uint8Array.from(bin, c=>c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
 function fmtAgo(ts){
   if(!ts) return '—';
   const s=(Date.now()-ts)/1000;
@@ -808,20 +821,44 @@ function updateLinkStatus(){
     ? 'Vinculado · última sincronização: <b>'+fmtAgo(state.synced)+'</b>'
     : 'Nenhum link vinculado ainda.';
 }
+// Fetch newest content via GitHub API (no raw CDN cache). Returns text or null.
+async function fetchViaApi(raw){
+  const g = ghApiFrom(raw); if(!g) return null;
+  try{
+    const res = await fetch(g.api, {cache:'no-store'});
+    if(!res.ok) return null;
+    const j = await res.json();
+    if(g.type==='repo'){
+      if(j.content && j.encoding==='base64') return b64utf8(j.content);
+      if(j.download_url){ const r=await fetch(j.download_url+'?t='+Date.now(),{cache:'no-store'}); if(r.ok) return await r.text(); }
+      return null;
+    } else {
+      const files = j.files ? Object.values(j.files) : [];
+      const f = files.find(x=>/\.(md|txt|cho|chopro)$/i.test(x.filename)) || files[0];
+      if(!f) return null;
+      if(f.truncated && f.raw_url){ const r=await fetch(f.raw_url,{cache:'no-store'}); if(r.ok) return await r.text(); }
+      return f.content;
+    }
+  }catch(e){ return null; }
+}
 async function syncFromUrl(manual){
   if(!state.url) return;
   const raw = toRawUrl(state.url);
-  try{
-    const bust = (raw.includes('?')?'&':'?')+'t='+Date.now();
-    const res = await fetch(raw + (manual?bust:''), {cache: manual?'no-store':'default'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const text = await res.text();
-    state.synced = Date.now(); LS.set('cifra.synced', state.synced);
-    loadRaw(text, manual ? 'Repertório atualizado' : null);
-    updateLinkStatus();
-  }catch(e){
-    if(manual) toast('Sem conexão — usando cópia salva');
+  // Try the API first (newest commit, no raw CDN cache); fall back to raw.
+  let text = await fetchViaApi(raw);
+  if(text==null){
+    try{
+      const res = await fetch(raw, {cache: manual?'no-store':'default'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      text = await res.text();
+    }catch(e){
+      if(manual) toast('Sem conexão — usando cópia salva');
+      return;
+    }
   }
+  state.synced = Date.now(); LS.set('cifra.synced', state.synced);
+  loadRaw(text, manual ? 'Repertório atualizado' : null);
+  updateLinkStatus();
 }
 function exportMd(){
   const blob = new Blob([state.raw||''], {type:'text/markdown;charset=utf-8'});
