@@ -61,7 +61,8 @@ body{
 #panel{
   position:relative; z-index:4; flex:0 0 auto;
   overflow:hidden; max-height:0; transition:max-height .28s ease;
-  background:var(--bg-elev); border-bottom:1px solid var(--line);
+  background:var(--surface-2); border-bottom:2px solid var(--accent);
+  box-shadow:0 10px 26px -12px rgba(0,0,0,.7);
 }
 #panel.open{max-height:560px}
 .panel-inner{padding:6px 12px 14px; display:flex; flex-direction:column; gap:11px}
@@ -374,7 +375,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v25';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v27';   // incrementada automaticamente a cada commit (hook pre-commit)
 // Link padrão de importação: app novo já sincroniza deste repertório.
 const DEFAULT_URL = 'https://github.com/craniodev/palco/blob/main/repertorio.md';
 const state = {
