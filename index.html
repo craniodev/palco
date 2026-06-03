@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Lexend:wght@400..700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#100c08; --bg-elev:#1d1813; --surface:#241e17; --surface-2:#2c241b;
@@ -27,6 +27,7 @@
   --serif:'Fraunces',Georgia,serif;
   --sans:'Hanken Grotesk',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --read:'Hanken Grotesk',system-ui,sans-serif; /* fonte da música — trocável */
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
 }
@@ -62,7 +63,7 @@ body{
   overflow:hidden; max-height:0; transition:max-height .28s ease;
   background:var(--bg-elev); border-bottom:1px solid var(--line);
 }
-#panel.open{max-height:420px}
+#panel.open{max-height:500px}
 .panel-inner{padding:6px 12px 14px; display:flex; flex-direction:column; gap:11px}
 .row{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
 .lbl{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); width:78px; flex:0 0 auto}
@@ -89,12 +90,12 @@ body{
 #scroller::-webkit-scrollbar{width:0}
 #chart{max-width:760px; margin:0 auto}
 .song-title{
-  font-family:var(--serif); font-weight:500; font-size:clamp(26px,7vw,38px);
+  font-family:var(--read); font-weight:600; font-size:clamp(26px,7vw,38px);
   line-height:1.05; margin:14px 0 4px; letter-spacing:-.01em;
 }
 .song-meta{font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:18px}
 .section{
-  font-family:var(--serif); font-style:italic; font-size:calc(var(--fs) * .92);
+  font-family:var(--read); font-weight:600; font-size:calc(var(--fs) * .92);
   color:var(--section); margin:24px 0 10px; padding-left:13px; position:relative;
 }
 .section::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:3px;border-radius:3px;background:var(--accent);opacity:.8}
@@ -102,7 +103,7 @@ body{
 .medley{
   display:flex; align-items:baseline; gap:11px; flex-wrap:wrap;
   margin:30px 0 14px; padding-top:16px; border-top:1px solid var(--line);
-  font-family:var(--serif); font-weight:500; font-size:calc(var(--fs) * 1.12);
+  font-family:var(--read); font-weight:600; font-size:calc(var(--fs) * 1.12);
   color:var(--accent); line-height:1.1; letter-spacing:-.01em;
 }
 .medley .arrow{font-family:var(--mono);font-size:.62em;opacity:.85;transform:translateY(-1px)}
@@ -112,7 +113,7 @@ body{
 .set-item .badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--line);border-radius:4px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
 
 /* annotation / cue */
-.annot{font-family:var(--serif); font-style:italic; font-size:calc(var(--fs)*.82); color:var(--muted); margin:.1em 0 .55em; line-height:1.35}
+.annot{font-family:var(--read); font-style:italic; font-size:calc(var(--fs)*.82); color:var(--muted); margin:.1em 0 .55em; line-height:1.35}
 .annot::before{content:"✱ "; color:var(--accent); font-style:normal; font-size:.8em}
 
 /* measure / bar grid */
@@ -141,11 +142,11 @@ body{
   font-family:var(--mono); font-weight:600; font-size:calc(var(--fs) * .68);
   color:var(--chord); line-height:1.15; height:1.32em; padding-right:.55em; white-space:pre;
 }
-.seg .ly{font-size:var(--fs); line-height:var(--lh); white-space:pre; font-weight:600}
+.seg .ly{font-family:var(--read); font-size:var(--fs); line-height:var(--lh); white-space:pre; font-weight:600}
 .line.instr .seg .ch{height:auto; font-size:calc(var(--fs)*.82); padding-right:1.1em}
 .line.instr .seg .ly{display:none}
 .line.lyric-only .seg .ch{display:none}
-.plain{font-size:calc(var(--fs)*.9); color:var(--muted); margin:.2em 0 .6em; line-height:1.4}
+.plain{font-family:var(--read); font-size:calc(var(--fs)*.9); color:var(--muted); margin:.2em 0 .6em; line-height:1.4}
 .end-pad{height:40vh}
 
 .fade-in{animation:fade .35s ease both}
@@ -267,6 +268,10 @@ input[type=file]{display:none}
       </button>
     </div>
     <div class="row">
+      <span class="lbl">Fonte</span>
+      <div id="fontPick" class="row" style="gap:7px;flex:1 1 100%;min-width:0"></div>
+    </div>
+    <div class="row">
       <span class="lbl">Tamanho</span>
       <div class="stepper">
         <button id="fsDown">−</button><span class="val" id="fsVal">21</span><button id="fsUp">+</button>
@@ -378,6 +383,7 @@ const state = {
   fontSize: LS.get('cifra.fontSize', 21),
   speed: LS.get('cifra.speed', 34),
   theme: LS.get('cifra.theme', 'dark'),
+  font: LS.get('cifra.font', 'hanken'),
   url: LS.get('cifra.url', DEFAULT_URL),
   synced: LS.get('cifra.synced', 0),
   scrolling: false
@@ -902,6 +908,30 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
 function setTheme(th){ state.theme=th; document.documentElement.setAttribute('data-theme', th); $('meta[name=theme-color]').setAttribute('content', th==='light'?'#f6efe3':'#15120f'); LS.set('cifra.theme', th); }
 
+/* ----- Fonte de leitura (letra) ----- */
+const FONTS = {
+  hanken:   { label:'Hanken',   stack:"'Hanken Grotesk',system-ui,sans-serif" },
+  atkinson: { label:'Atkinson', stack:"'Atkinson Hyperlegible',system-ui,sans-serif" },
+  lexend:   { label:'Lexend',   stack:"'Lexend',system-ui,sans-serif" },
+  sistema:  { label:'Sistema',  stack:"system-ui,-apple-system,sans-serif" }
+};
+function applyFont(key){
+  if(!FONTS[key]) key='hanken';
+  state.font=key;
+  document.documentElement.style.setProperty('--read', FONTS[key].stack);
+  LS.set('cifra.font', key);
+  document.querySelectorAll('#fontPick .btn').forEach(b=>b.classList.toggle('primary', b.dataset.font===key));
+}
+function buildFontPick(){
+  const c=$('#fontPick'); if(!c) return; c.innerHTML='';
+  Object.keys(FONTS).forEach(key=>{
+    const b=el('button','btn'+(key===state.font?' primary':''), FONTS[key].label);
+    b.dataset.font=key; b.style.fontFamily=FONTS[key].stack; b.style.fontSize='12.5px'; b.style.padding='8px 11px';
+    b.onclick=()=>applyFont(key);
+    c.appendChild(b);
+  });
+}
+
 $('#btnSettings').onclick=()=> $('#panel').classList.toggle('open');
 $('#btnTheme').onclick=()=> setTheme(state.theme==='dark'?'light':'dark');
 
@@ -1049,6 +1079,7 @@ Com a viola e a alegria
 
 /* ============================= Init ============================= */
 setTheme(state.theme);
+buildFontPick(); applyFont(state.font);
 document.documentElement.style.setProperty('--fs', state.fontSize+'px');
 $('#fsVal').textContent=state.fontSize;
 loadRaw(state.raw || DEMO);     // instant: cached copy (works offline)
