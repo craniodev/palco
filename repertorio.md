@@ -91,17 +91,16 @@
 # Como um Anjo
 * Tom: Dm (original Em)
 [Intro]
-|: F↓↓  A#9↓↓ :|
+|F A#9↓↓ |F A#9↓↓|
 [Verso I]
-| F↓↓  A#9↓↓  F |
-| F | C | % | Gm |
-| % | A# | C | C#º :| 2x
+| F  A#↓↓ F| % | C  | % ^|
+| Gm       | % | A# | C :| 2x
 [Verso II] * "Linda menina..."
 | Dm | % | C | % |
-| C | A#  A#  A | Gm  F | C |
+| C  | A#|A# A Gm  F| C |
 [Refrão]
-|: F | Dm | A#  Gm | C |
-| F | Dm | A#  C | F  C :| 2x
+|:F  |%  | Dm|%  |
+| A# |Gm | C |%  | 2x
 [Solo]
 | F | Dm | A#  Gm | C |
 * repete Verso II + Refrão
