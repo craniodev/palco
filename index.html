@@ -372,7 +372,8 @@ const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
   current: 0,
-  transpose: LS.get('cifra.transpose', 0),
+  transpose: 0,                                  // tom da música atual (derivado)
+  transposes: LS.get('cifra.transposes', {}),    // tom salvo por música
   fontSize: LS.get('cifra.fontSize', 21),
   chordSize: LS.get('cifra.chordSize', 14),
   speed: LS.get('cifra.speed', 34),
@@ -734,6 +735,7 @@ function render(){
   chart.innerHTML='';
   const unit = state.songs[state.current];
   if(!unit){ chart.appendChild(el('p','plain','Nenhuma cifra carregada. Toque em “Abrir .md” ou “Editar / colar”.')); return; }
+  state.transpose = state.transposes[transposeKey()] || 0;   // tom só desta música
   const medley = unit.parts.length>1;
   const wrap = el('div','fade-in');
 
@@ -945,12 +947,17 @@ $('#fsDown').onclick=()=>{ state.fontSize=Math.max(13,state.fontSize-1); LS.set(
 function applyChordSize(){ document.documentElement.style.setProperty('--cs', state.chordSize+'px'); $('#csVal').textContent=state.chordSize; }
 $('#csUp').onclick=()=>{ state.chordSize=Math.min(34,state.chordSize+1); LS.set('cifra.chordSize',state.chordSize); applyChordSize(); };
 $('#csDown').onclick=()=>{ state.chordSize=Math.max(9,state.chordSize-1); LS.set('cifra.chordSize',state.chordSize); applyChordSize(); };
-$('#trUp').onclick=()=>{ state.transpose++; render(); };
-$('#trDown').onclick=()=>{ state.transpose--; render(); };
-$('#trReset').onclick=()=>{ state.transpose=0; render(); };
-$('#trUp').addEventListener('click',()=>LS.set('cifra.transpose',state.transpose));
-$('#trDown').addEventListener('click',()=>LS.set('cifra.transpose',state.transpose));
-$('#trReset').addEventListener('click',()=>LS.set('cifra.transpose',state.transpose));
+// Tom é por música: chave = título da unidade atual.
+function transposeKey(){ const u=state.songs[state.current]; return u? normalize(u.title) : ''; }
+function setTranspose(v){
+  const k=transposeKey(); if(!k) return;
+  if(v) state.transposes[k]=v; else delete state.transposes[k];   // 0 = limpa
+  LS.set('cifra.transposes', state.transposes);
+  render();
+}
+$('#trUp').onclick=()=>setTranspose((state.transpose||0)+1);
+$('#trDown').onclick=()=>setTranspose((state.transpose||0)-1);
+$('#trReset').onclick=()=>setTranspose(0);
 
 $('#playBtn').onclick=toggleScroll;
 const spd=$('#speed');
