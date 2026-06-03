@@ -2,7 +2,7 @@
    Caches the app shell + Google Fonts so it runs fully offline after the
    first online load. The repertoire itself is fetched by the page from its
    raw link and kept in localStorage, so it stays available offline too. */
-const CACHE = 'cifra-v16';
+const CACHE = 'cifra-v18';
 const CORE = [
   './',
   './index.html',
