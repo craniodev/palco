@@ -376,7 +376,8 @@ const state = {
   transposes: LS.get('cifra.transposes', {}),    // tom salvo por música
   fontSize: LS.get('cifra.fontSize', 21),
   chordSize: LS.get('cifra.chordSize', 14),
-  speed: LS.get('cifra.speed', 34),
+  speed: 34,                               // velocidade da música atual (derivada)
+  speeds: LS.get('cifra.speeds', {}),      // velocidade salva por música
   theme: LS.get('cifra.theme', 'dark'),
   font: LS.get('cifra.font', 'hanken'),
   url: LS.get('cifra.url', DEFAULT_URL),
@@ -735,7 +736,10 @@ function render(){
   chart.innerHTML='';
   const unit = state.songs[state.current];
   if(!unit){ chart.appendChild(el('p','plain','Nenhuma cifra carregada. Toque em “Abrir .md” ou “Editar / colar”.')); return; }
-  state.transpose = state.transposes[transposeKey()] || 0;   // tom só desta música
+  const sk = transposeKey();
+  state.transpose = state.transposes[sk] || 0;               // tom só desta música
+  state.speed = state.speeds[sk] || 34;                      // velocidade só desta música
+  $('#speed').value = state.speed; $('#spdVal').textContent = state.speed;
   const medley = unit.parts.length>1;
   const wrap = el('div','fade-in');
 
@@ -962,7 +966,11 @@ $('#trReset').onclick=()=>setTranspose(0);
 $('#playBtn').onclick=toggleScroll;
 const spd=$('#speed');
 spd.value=state.speed; $('#spdVal').textContent=state.speed;
-spd.oninput=()=>{ state.speed=+spd.value; $('#spdVal').textContent=spd.value; LS.set('cifra.speed',state.speed); };
+spd.oninput=()=>{
+  state.speed=+spd.value; $('#spdVal').textContent=spd.value;
+  const k=transposeKey();
+  if(k){ if(state.speed===34) delete state.speeds[k]; else state.speeds[k]=state.speed; LS.set('cifra.speeds',state.speeds); }
+};
 
 function goPrev(){ if(state.current>0){ stopScroll(); state.current--; render(); buildSetlist(); } }
 function goNext(){ if(state.current<state.songs.length-1){ stopScroll(); state.current++; render(); buildSetlist(); } }
