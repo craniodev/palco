@@ -119,10 +119,11 @@ body{
 
 /* measure / bar grid */
 .bars{display:flex; flex-wrap:wrap; margin:.45em 0 1.1em;
-  border:1px solid var(--line); border-left:0; border-radius:4px; overflow:hidden;
+  border:1px solid var(--line); border-radius:4px; overflow:hidden;
   background:transparent;}
+.bars .repmark + .measure{border-left:0}
 .measure{
-  flex:1 1 70px; min-width:64px;
+  flex:1 1 64px; min-width:56px;
   display:flex; align-items:center; justify-content:center; gap:.55em; flex-wrap:wrap;
   padding:.4em .5em; min-height:2.1em;
   border-left:2px solid var(--line-strong);
@@ -132,8 +133,10 @@ body{
 .measure .rep{color:var(--faint); font-size:1.15em; font-weight:600}
 .measure .beat{color:var(--muted)}
 .measure .btok{color:var(--text)}
-.bars .repmark{display:flex; align-items:center; padding:0 .4em; font-family:var(--mono); font-weight:700; color:var(--accent); font-size:calc(var(--cs)*1.4)}
-.bars .barcount{display:flex; align-items:center; padding:0 .55em; font-family:var(--mono); font-weight:600; font-size:calc(var(--cs)*.9); color:var(--accent)}
+.bars .repmark{flex:0 0 auto; display:flex; align-items:center; padding:0 .18em; font-family:var(--mono); font-weight:700; color:var(--accent); font-size:calc(var(--cs)*.95); letter-spacing:-.12em}
+.barsrow{display:flex; align-items:center; gap:.45em; margin:.45em 0 1.1em}
+.barsrow .bars{margin:0; flex:1 1 auto; min-width:0}
+.barcount{flex:0 0 auto; min-width:2.6ch; font-family:var(--mono); font-weight:700; font-size:calc(var(--cs)*.82); color:var(--muted); letter-spacing:.02em}
 
 .line{display:flex; flex-wrap:wrap; align-items:flex-end; margin-bottom:.5em}
 .line.instr{margin-bottom:.8em}
@@ -375,7 +378,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v28';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v29';   // incrementada automaticamente a cada commit (hook pre-commit)
 // Link padrão de importação: app novo já sincroniza deste repertório.
 const DEFAULT_URL = 'https://github.com/craniodev/palco/blob/main/repertorio.md';
 const state = {
@@ -701,8 +704,10 @@ function renderSegs(segs, instr, tr){
 function renderBars(b, tr){
   tr = state.transpose + (tr||0);
   const measures = b.measures || [];
+  // slot do ritornelo sempre presente (oculto quando não há) → caixas alinham
+  const mk = txt=>{ const s=el('span','repmark', txt||'‖:'); if(!txt) s.style.visibility='hidden'; return s; };
   const wrap = el('div','bars');
-  if(b.repStart) wrap.appendChild(el('span','repmark','‖:'));
+  wrap.appendChild(mk(b.repStart?'‖:':''));
   for(const m of measures){
     const cell = el('div','measure');
     if(m.length===0){ cell.appendChild(el('span','beat','\u00A0')); }
@@ -714,9 +719,12 @@ function renderBars(b, tr){
     }
     wrap.appendChild(cell);
   }
-  if(b.repEnd) wrap.appendChild(el('span','repmark',':‖'));
-  if(b.count) wrap.appendChild(el('span','barcount', b.count));
-  return wrap;
+  wrap.appendChild(mk(b.repEnd?':‖':''));
+  // contagem fora da caixa, slot sempre presente (vazio reserva largura)
+  const row = el('div','barsrow');
+  row.appendChild(wrap);
+  row.appendChild(el('span','barcount', b.count||''));
+  return row;
 }
 
 function medleyDivider(b){
