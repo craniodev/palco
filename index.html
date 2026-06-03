@@ -203,6 +203,10 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   padding-bottom:var(--safe-b);
 }
 .sheet.open{transform:none}
+/* editor em tela cheia */
+#editorSheet{max-height:none; height:100dvh; border-radius:0; border-top:0; padding-top:var(--safe-t)}
+#editorSheet .grab{display:none}
+#editorSheet h2{padding-top:14px}
 .sheet h2{font-family:var(--serif);font-weight:500;font-size:21px;margin:0;padding:18px 18px 6px}
 .sheet .grab{width:40px;height:4px;border-radius:4px;background:var(--line-strong);margin:9px auto 0}
 .setlist{overflow-y:auto;padding:8px 12px 18px}
@@ -328,9 +332,9 @@ input[type=file]{display:none}
 <div class="sheet-bg" id="editorBg"></div>
 <div class="sheet" id="editorSheet">
   <div class="grab"></div>
-  <h2>Editar cifra</h2>
+  <h2 id="editorTitle">Editar cifra</h2>
   <div class="editor">
-    <p class="hint">Acordes entre colchetes <code>[C]</code> ou na linha de cima (estilo Cifra Club). Seções com <code>## Nome</code> ou <code>[Refrão]</code>. Compassos: <code>|Dm |% |C |% |</code> (o <code>%</code> repete). Levada: setas grudadas no acorde, <code>C↓↓</code>. Nota/deixa: <code>* texto</code>.<br>Separe músicas com <code>---</code>. Pot-pourri: emende as músicas com <code>+++</code> entre elas — viram um item só, tocado seguido.</p>
+    <p class="hint">Editando só a música atual. Acordes entre colchetes <code>[C]</code> ou na linha de cima (estilo Cifra Club). Seções com <code>## Nome</code> ou <code>[Refrão]</code>. Compassos: <code>|Dm |% |C |% |</code> (o <code>%</code> repete). Levada: setas grudadas no acorde, <code>C↓↓</code>. Nota/deixa: <code>* texto</code>.<br>Pot-pourri: emende partes com <code>+++</code> entre elas.</p>
     <textarea id="editorText" spellcheck="false"></textarea>
     <div class="ed-actions">
       <button class="btn" id="edCancel">Cancelar</button>
@@ -447,9 +451,9 @@ function splitUnits(text){
     const partTexts = ut.split(/^[ \t]*\+{3,}[ \t]*$/m).map(s=>s.trim()).filter(Boolean);
     if(!partTexts.length) continue;
     const parts = partTexts.map(b=>({title:songTitle(b), body:b}));
-    units.push({ parts, title: parts.length>1 ? parts.map(p=>p.title).join('  ·  ') : parts[0].title });
+    units.push({ parts, title: parts.length>1 ? parts.map(p=>p.title).join('  ·  ') : parts[0].title, raw: ut.trim() });
   }
-  return units.length? units : [{parts:[{title:'Vazio', body:''}], title:'Vazio'}];
+  return units.length? units : [{parts:[{title:'Vazio', body:''}], title:'Vazio', raw:''}];
 }
 
 function songTitle(body){
@@ -1007,10 +1011,22 @@ $('#fileInput').onchange=(e)=>{
 /* Editor */
 function openSheet(bg,sheet){ $(bg).classList.add('open'); $(sheet).classList.add('open'); }
 function closeSheet(bg,sheet){ $(bg).classList.remove('open'); $(sheet).classList.remove('open'); }
-$('#btnEdit').onclick=()=>{ $('#editorText').value=state.raw||''; openSheet('#editorBg','#editorSheet'); $('#panel').classList.remove('open'); };
+$('#btnEdit').onclick=()=>{
+  const u=state.songs[state.current];
+  $('#editorText').value = u ? (u.raw||'') : (state.raw||'');
+  $('#editorTitle').textContent = u ? ('Editar: '+u.title) : 'Editar cifra';
+  openSheet('#editorBg','#editorSheet'); $('#panel').classList.remove('open');
+};
 $('#edCancel').onclick=()=>closeSheet('#editorBg','#editorSheet');
 $('#editorBg').onclick=()=>closeSheet('#editorBg','#editorSheet');
-$('#edSave').onclick=()=>{ const v=$('#editorText').value; state.current=0; loadRaw(v,'Cifra atualizada'); closeSheet('#editorBg','#editorSheet'); };
+$('#edSave').onclick=()=>{
+  const v=$('#editorText').value;
+  // troca só a unidade atual; mantém o resto do repertório
+  const segs = state.songs.map((u,i)=> i===state.current ? v : (u.raw||''));
+  const newRaw = segs.join('\n\n---\n\n');
+  loadRaw(newRaw,'Música atualizada');
+  closeSheet('#editorBg','#editorSheet');
+};
 
 /* Link / sync */
 $('#btnExport').onclick=()=>{ exportMd(); };
