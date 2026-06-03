@@ -918,7 +918,7 @@ Que não for filho de Deus, tá na unha do capeta!
 ---
 
 # Saudade da Minha Terra
-* Tom: C · (cifra a adicionar)
+* Tom: C
 
 [Intro] G  C  G  F
         C  G  C
@@ -1034,26 +1034,23 @@ Foi lá que nasci, lá quero morrer
 ---
 
 # Nova York
-* Tom: G · (cifra a adicionar)
+* Tom: G
 
-Tom: G
 [Intro] G  D  Am  C  Am  C
         G  D  Am  C  Am  C  G
 
 [Primeira Parte]
-
-Am              C           G         (Riff 1)
+Am              C           G        
    Essa é a história de um novo herói
 Am              C         G
    Cabelos compridos a rolar no vento
-Am          C           G       (Riff 1)
+Am          C           G       
    Pela estrada no seu caminhão
 Am             C                G
    Cravado no peito a sombra de um dragão
 
 [Refrão]
-
-C                        G        (Riff 2)
+C                        G        
   Tinha um sonho ir pra Nova York
 
 Levar a namorada
@@ -1066,11 +1063,11 @@ Saudade vai, vai, vai
          Am        C
 Saudade vem, vem, vem te buscar
 
-[Solo] G  D  Am  C  Am  C
-       G  D  Am  C  Am  C  G
+[Solo] 
+G  D  Am  C  Am  C
+G  D  Am  C  Am  C  G
 
 [Primeira Parte]
-
 Am              C           G         (Riff 1)
    Essa é a história de um novo herói
 Am              C         G
@@ -1081,7 +1078,6 @@ Am             C                G
    Cravado no peito a sombra de um dragão
 
 [Refrão]
-
 C                        G        (Riff 2)
   Tinha um sonho ir pra Nova York
 
