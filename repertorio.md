@@ -31,7 +31,9 @@
 [Intro] * entra no vocal — "Eu não sei pra onde vou"
 [Verso I]
 |: G | % | Am | % |
-| F | D7 | G  D7 | G... | 2x
+| F | D7 | G  D7 | G :| 
+* 2x
+
 [Pré-Refrão]
 | C | % | G | % |
 | Am | C  D7 | G | G7 |
