@@ -250,15 +250,11 @@ input[type=file]{display:none}
     <div class="row">
       <button class="btn primary" id="btnLoad">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Abrir .md
+        Importar .md
       </button>
       <button class="btn" id="btnEdit">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
         Editar / colar
-      </button>
-      <button class="btn" id="btnLink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
-        Link
       </button>
       <button class="btn" id="btnExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 9l5-5 5 5M12 4v12"/></svg>
@@ -351,23 +347,6 @@ input[type=file]{display:none}
   </div>
 </div>
 
-<!-- Link / sync sheet -->
-<div class="sheet-bg" id="linkBg"></div>
-<div class="sheet" id="linkSheet">
-  <div class="grab"></div>
-  <h2>Link do repertório</h2>
-  <div class="editor">
-    <p class="hint">Cole o link do seu arquivo no GitHub ou Gist. Pode ser a página normal (<code>github.com/.../blob/...</code>) — eu converto pro formato certo. O app baixa, guarda pra usar offline e atualiza sozinho ao abrir com internet. Toque em <b>Atualizar</b> quando mudar o arquivo no palco.</p>
-    <input type="text" id="linkUrl" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="https://github.com/usuario/repo/blob/main/repertorio.md">
-    <div id="linkStatus" class="hint"></div>
-    <div class="ed-actions">
-      <button class="btn" id="linkClear">Remover</button>
-      <button class="btn" id="linkUpdate">Atualizar</button>
-      <button class="btn primary" id="linkSave">Salvar e sincronizar</button>
-    </div>
-  </div>
-</div>
-
 <input type="file" id="fileInput" accept=".md,.txt,.cho,.crd,.chopro,.pro,text/markdown,text/plain">
 <div class="toast" id="toast"></div>
 
@@ -378,9 +357,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v29';   // incrementada automaticamente a cada commit (hook pre-commit)
-// Link padrão de importação: app novo já sincroniza deste repertório.
-const DEFAULT_URL = 'https://github.com/craniodev/palco/blob/main/repertorio.md';
+const APP_VERSION='v30';   // incrementada automaticamente a cada commit (hook pre-commit)
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
@@ -393,8 +370,6 @@ const state = {
   speeds: LS.get('cifra.speeds', {}),      // velocidade salva por música
   theme: LS.get('cifra.theme', 'dark'),
   font: LS.get('cifra.font', 'hanken'),
-  url: LS.get('cifra.url', DEFAULT_URL),
-  synced: LS.get('cifra.synced', 0),
   scrolling: false
 };
 
@@ -753,7 +728,7 @@ function render(){
   document.documentElement.style.setProperty('--fs', state.fontSize+'px');
   chart.innerHTML='';
   const unit = state.songs[state.current];
-  if(!unit){ chart.appendChild(el('p','plain','Nenhuma cifra carregada. Toque em “Abrir .md” ou “Editar / colar”.')); return; }
+  if(!unit){ chart.appendChild(el('p','plain','Nenhuma cifra carregada. Toque em “Importar .md” ou “Editar / colar”.')); return; }
   const sk = transposeKey();
   state.transpose = state.transposes[sk] || 0;               // tom só desta música
   state.speed = state.speeds[sk] || 34;                      // velocidade só desta música
@@ -800,83 +775,6 @@ function loadRaw(text, toastMsg){
   if(toastMsg) toast(toastMsg);
 }
 
-/* ============================= Sync by link ============================= */
-// Turn a normal GitHub/Gist page URL into a direct "raw" URL.
-function toRawUrl(u){
-  u = (u||'').trim();
-  if(!u) return '';
-  let m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/i);
-  if(m) return 'https://raw.githubusercontent.com/'+m[1]+'/'+m[2]+'/'+m[3];
-  m = u.match(/^https?:\/\/gist\.github\.com\/([^\/]+)\/([0-9a-f]+)/i);
-  if(m) return 'https://gist.githubusercontent.com/'+m[1]+'/'+m[2]+'/raw';
-  return u;
-}
-// Derive the GitHub API endpoint (bypasses raw's 5-min CDN cache → newest commit).
-function ghApiFrom(rawUrl){
-  let m = rawUrl.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i);
-  if(m) return {type:'repo', api:'https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents/'+m[4].split('?')[0]+'?ref='+m[3]};
-  m = rawUrl.match(/gist\.github(?:usercontent)?\.com\/[^\/]+\/([0-9a-f]+)/i);
-  if(m) return {type:'gist', api:'https://api.github.com/gists/'+m[1]};
-  return null;
-}
-function b64utf8(b64){
-  const bin = atob((b64||'').replace(/\s/g,''));
-  const bytes = Uint8Array.from(bin, c=>c.charCodeAt(0));
-  return new TextDecoder('utf-8').decode(bytes);
-}
-function fmtAgo(ts){
-  if(!ts) return '—';
-  const s=(Date.now()-ts)/1000;
-  if(s<60) return 'agora há pouco';
-  if(s<3600) return 'há '+Math.floor(s/60)+' min';
-  if(s<86400) return 'há '+Math.floor(s/3600)+' h';
-  return 'há '+Math.floor(s/86400)+' dias';
-}
-function updateLinkStatus(){
-  const e=$('#linkStatus'); if(!e) return;
-  e.innerHTML = state.url
-    ? 'Vinculado · última sincronização: <b>'+fmtAgo(state.synced)+'</b>'
-    : 'Nenhum link vinculado ainda.';
-}
-// Fetch newest content via GitHub API (no raw CDN cache). Returns text or null.
-async function fetchViaApi(raw){
-  const g = ghApiFrom(raw); if(!g) return null;
-  try{
-    const res = await fetch(g.api, {cache:'no-store'});
-    if(!res.ok) return null;
-    const j = await res.json();
-    if(g.type==='repo'){
-      if(j.content && j.encoding==='base64') return b64utf8(j.content);
-      if(j.download_url){ const r=await fetch(j.download_url+'?t='+Date.now(),{cache:'no-store'}); if(r.ok) return await r.text(); }
-      return null;
-    } else {
-      const files = j.files ? Object.values(j.files) : [];
-      const f = files.find(x=>/\.(md|txt|cho|chopro)$/i.test(x.filename)) || files[0];
-      if(!f) return null;
-      if(f.truncated && f.raw_url){ const r=await fetch(f.raw_url,{cache:'no-store'}); if(r.ok) return await r.text(); }
-      return f.content;
-    }
-  }catch(e){ return null; }
-}
-async function syncFromUrl(manual){
-  if(!state.url) return;
-  const raw = toRawUrl(state.url);
-  // Try the API first (newest commit, no raw CDN cache); fall back to raw.
-  let text = await fetchViaApi(raw);
-  if(text==null){
-    try{
-      const res = await fetch(raw, {cache: manual?'no-store':'default'});
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      text = await res.text();
-    }catch(e){
-      if(manual) toast('Sem conexão — usando cópia salva');
-      return;
-    }
-  }
-  state.synced = Date.now(); LS.set('cifra.synced', state.synced);
-  loadRaw(text, manual ? 'Repertório atualizado' : null);
-  updateLinkStatus();
-}
 function exportMd(){
   const blob = new Blob([state.raw||''], {type:'text/markdown;charset=utf-8'});
   const a = document.createElement('a');
@@ -1042,19 +940,8 @@ $('#edSave').onclick=()=>{
   closeSheet('#editorBg','#editorSheet');
 };
 
-/* Link / sync */
+/* Export */
 $('#btnExport').onclick=()=>{ exportMd(); };
-$('#btnLink').onclick=()=>{ $('#linkUrl').value=state.url||''; updateLinkStatus(); openSheet('#linkBg','#linkSheet'); $('#panel').classList.remove('open'); };
-$('#linkBg').onclick=()=>closeSheet('#linkBg','#linkSheet');
-$('#linkSave').onclick=()=>{
-  const v=$('#linkUrl').value.trim();
-  state.url = v || null; LS.set('cifra.url', state.url);
-  updateLinkStatus();
-  if(state.url){ state.current=0; syncFromUrl(true); closeSheet('#linkBg','#linkSheet'); $('#panel').classList.remove('open'); }
-  else toast('Link removido');
-};
-$('#linkUpdate').onclick=()=>{ if(state.url){ state.current=0; syncFromUrl(true); } else toast('Cole um link primeiro'); };
-$('#linkClear').onclick=()=>{ state.url=null; state.synced=0; LS.set('cifra.url',null); LS.set('cifra.synced',0); $('#linkUrl').value=''; updateLinkStatus(); toast('Link removido'); };
 
 /* Setlist */
 function buildSetlist(){
@@ -1133,10 +1020,8 @@ document.documentElement.style.setProperty('--fs', state.fontSize+'px');
 $('#fsVal').textContent=state.fontSize;
 $('#appVer').textContent=APP_VERSION;
 applyChordSize();
-loadRaw(state.raw || DEMO);     // instant: cached copy (works offline)
-updateLinkStatus();
+loadRaw(state.raw || DEMO);     // cópia salva (offline) ou demo
 reqWake();                       // mantém a tela acesa desde o início
-if(state.url && navigator.onLine){ syncFromUrl(false); }   // refresh from master when online
 
 /* Service worker (offline app) */
 if('serviceWorker' in navigator){
