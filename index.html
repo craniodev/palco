@@ -124,8 +124,8 @@ body{
 .bars .repmark + .measure{border-left:0}
 .measure{
   flex:1 1 64px; min-width:56px;
-  display:flex; align-items:center; justify-content:center; gap:.55em; flex-wrap:wrap;
-  padding:.4em .5em; min-height:2.1em;
+  display:flex; align-items:center; justify-content:space-evenly; gap:.4em; flex-wrap:wrap;
+  padding:.4em .7em; min-height:2.1em;
   border-left:2px solid var(--line-strong);
   font-family:var(--mono); font-size:calc(var(--cs)*1.18);
 }
@@ -357,7 +357,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v31';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v32';   // incrementada automaticamente a cada commit (hook pre-commit)
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
