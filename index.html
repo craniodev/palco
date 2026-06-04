@@ -357,7 +357,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v32';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v33';   // incrementada automaticamente a cada commit (hook pre-commit)
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
