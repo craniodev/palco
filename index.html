@@ -319,7 +319,7 @@ input[type=file]{display:none}
   </div>
   <div class="tp-speed">
     <span class="cap">veloc.</span>
-    <input type="range" id="speed" min="6" max="120" value="34" step="2">
+    <input type="range" id="speed" min="1" max="120" value="34" step="1">
     <span class="spd-val" id="spdVal">34</span>
   </div>
 </footer>
@@ -357,7 +357,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v30';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v31';   // incrementada automaticamente a cada commit (hook pre-commit)
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
