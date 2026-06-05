@@ -22,6 +22,7 @@
   --text:#fdf6ec; --muted:#a89c8b; --faint:#6f6557;
   --chord:#ffb454; --chord-soft:#ffcd86;
   --section:#e9d6b6; --accent:#ff9f3c; --accent-ink:#1a1209;
+  --cue:#ff6b5e;
   --glow:rgba(255,160,70,.16);
   --fs:21px; --cs:14px; --lh:1.32;
   --serif:'Fraunces',Georgia,serif;
@@ -37,6 +38,7 @@ html[data-theme="light"]{
   --text:#241d12; --muted:#6e6354; --faint:#9a8d79;
   --chord:#b1631a; --chord-soft:#945115;
   --section:#7a5a2c; --accent:#c6741e; --accent-ink:#fffaf0;
+  --cue:#cc2f26;
   --glow:rgba(198,116,30,.10);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -114,8 +116,8 @@ body{
 .set-item .badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--line);border-radius:4px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
 
 /* annotation / cue */
-.annot{font-family:var(--read); font-style:italic; font-size:calc(var(--fs)*.82); color:var(--muted); margin:.1em 0 .55em; line-height:1.35}
-.annot::before{content:"✱ "; color:var(--accent); font-style:normal; font-size:.8em}
+.annot{font-family:var(--read); font-style:italic; font-size:calc(var(--fs)*.82); color:var(--cue); margin:.1em 0 .55em; line-height:1.35}
+.annot::before{content:"✱ "; color:var(--cue); font-style:normal; font-size:.8em}
 
 /* measure / bar grid */
 .bars{display:flex; flex-wrap:wrap; margin:.45em 0 1.1em;
@@ -357,7 +359,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const APP_VERSION='v33';   // incrementada automaticamente a cada commit (hook pre-commit)
+const APP_VERSION='v34';   // incrementada automaticamente a cada commit (hook pre-commit)
 const state = {
   raw: LS.get('cifra.raw', null),
   songs: [],
